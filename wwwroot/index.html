@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <title>Network Device Manager</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@picocss/pico@1/css/pico.min.css">
+</head>
+<body class="container">
+    <h1>Menedżer Urządzeń Sieciowych</h1>
+    
+    <button onclick="scanNetwork()" id="scanBtn">Skanuj sieć lokalną</button>
+    <hr>
+    
+    <h2>Wykryte urządzenia</h2>
+    <table id="deviceTable">
+        <thead>
+            <tr>
+                <th>Nazwa</th>
+                <th>IP</th>
+                <th>Status</th>
+            </tr>
+        </thead>
+        <tbody></tbody>
+    </table>
+
+    <script>
+        async function loadDevices() {
+            const response = await fetch('/api/networkdevices');
+            const devices = await response.json();
+            const tbody = document.querySelector('#deviceTable tbody');
+            tbody.innerHTML = devices.map(d => `
+                <tr>
+                    <td>${d.name}</td>
+                    <td>${d.ipAddress}</td>
+                    <td>${d.isOnline ? '🟢 Online' : '🔴 Offline'}</td>
+                </tr>
+            `).join('');
+        }
+
+        async function scanNetwork() {
+            const btn = document.getElementById('scanBtn');
+            btn.innerText = "Skanowanie...";
+            btn.disabled = true;
+
+            await fetch('/api/networkdevices/scan', { method: 'POST' });
+            
+            await loadDevices();
+            btn.innerText = "Skanuj sieć lokalną";
+            btn.disabled = false;
+        }
+
+        loadDevices();
+    </script>
+</body>
+</html>
