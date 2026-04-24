@@ -1,0 +1,4 @@
+bin/
+obj/
+Migrations/
+network_devices.db
